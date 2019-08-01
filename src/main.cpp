@@ -65,11 +65,7 @@ void StreetLampsScenario()
 
     else if (brightness < BRIGHTNESSTHRESHOLD && StreetLampStatus)
     {
-        for (int i = 255; i < 0; i--)
-        {
-            SetBrightnessOfStreetLamps(i,StreetLamps, NumberOfStreetLamps);
-        }
-        StreetLampStatus = false;
+        fade
     }
 }
 #endif

@@ -1,5 +1,4 @@
 #include "sensors.hpp"
-
 /**
  * @brief Get the distance from ultrasonic pin object
  * 
@@ -27,7 +26,6 @@ int get_temperature_from_temperature_pin(int pin)
     float temp = 1.0 / (log(R / R0) / B + 1 / 298.15) - 273.15; // convert to celsius
     return (int)temp;
 }
-
 
 /**
  * @brief Wrapper to toggle LEDs on or off, regardless of their analog or digital connection
@@ -59,11 +57,12 @@ void SetLedStatus(int pin, bool status)
  * @param pin 
  * @return int 
  */
-int get_dB_from_noise_sensor(int pin){
+int get_dB_from_noise_sensor(int pin)
+{
     int loudnessSum = 0;
     for (int i = 0; i < 20; i++)
     {
-        loudnessSum+=analogRead(pin);
+        loudnessSum += analogRead(pin);
         delay(80);
     }
     int loudnessAvg = loudnessSum / 20;
@@ -71,16 +70,26 @@ int get_dB_from_noise_sensor(int pin){
     return dB;
 }
 
-/**
- * @brief Wrapper around ChainableLED.setColorRGB() to loop around each item in the StreetLamps object.
- * 
- * @param brightness the desired brightness, ranging from 0 (off) to 255 (max)
- */
-void SetBrightnessOfStreetLamps(int brightness, ChainableLED lamps, int numOfStreetLamps)
+void fadeStreetLampsUp(ChainableLED array, int len)
 {
-    for (int i = 0; i < numOfStreetLamps; i++)
+    for (byte lamp = 0; lamp < len; lamp++)
     {
-        lamps.setColorRGB(i, brightness, brightness, brightness);
+        for (int i = 0; i < 255; i++)
+        {
+            array.setColorRGB(lamp, i, i, i);
+            delay(10);
+        }
     }
 }
 
+void fadeStreetLampsDown(ChainableLED array, int len)
+{
+    for (byte lamp = 0; lamp < len; lamp++)
+    {
+        for (int i = 255; i >= 0; i--)
+        {
+            array.setColorRGB(lamp, i, i, i);
+            delay(10);
+        }
+    }
+}

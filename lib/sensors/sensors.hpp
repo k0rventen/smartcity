@@ -13,4 +13,6 @@ long get_distance_from_ultrasonic_pin(int pin);
 int get_temperature_from_temperature_pin(int pin);
 void SetLedStatus(int pin, bool status);
 int get_dB_from_noise_sensor(int pin);
-void SetBrightnessOfStreetLamps(int brightness);
+void fadeStreetLampsUp(ChainableLED array, int len);
+void fadeStreetLampsDown(ChainableLED array, int len);
+void setChainableLedStatus(ChainableLED array, byte index, int brightness);

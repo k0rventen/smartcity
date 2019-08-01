@@ -1,0 +1,26 @@
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Smart City"
+PROJECT_NUMBER         = "2.0"
+PROJECT_BRIEF          = "A smart city mockup using Arduinos, LoRaWAN & Acklio"
+PROJECT_LOGO           = "ressources/logo.png"
+OUTPUT_DIRECTORY       = 
+HTML_OUTPUT            = doc
+INPUT                  = ./
+RECURSIVE              = YES
+ENABLE_PREPROCESSING   = NO
+QUIET                  = YES
+GENERATE_LATEX         = NO
+
+
+USE_MDFILE_AS_MAINPAGE = README.md
+GENERATE_HTML          = YES
+HTML_FILE_EXTENSION    = .html
+HTML_EXTRA_STYLESHEET  = "ressources/custom_dark_theme.css"
+HTML_COLORSTYLE_HUE    = 220
+HTML_COLORSTYLE_SAT    = 120
+HTML_COLORSTYLE_GAMMA  = 80
+HTML_TIMESTAMP         = YES
+HTML_DYNAMIC_MENUS     = YES
+HTML_DYNAMIC_SECTIONS  = YES
+HTML_INDEX_NUM_ENTRIES = 100
+MARKDOWN_SUPPORT       = YES

@@ -1,20 +1,44 @@
 /*!
  * @file main.cpp
  *
- * @page "Technical overview"
+ * @page "Main logic"
  * 
- * @section Global
+ * @section lol Technical overview
  * 
- * fezfzeafaze
+ * This is the main script, from which every lib is called.
  * 
- * @section tech Intersting bits
+ * The logic is very simple, depending on which compiler flags are enabled (from the header.hpp),
+ * the setup function will initialize the corresponding sensors, and the main runtime loop will call
+ * each enabled scenarios in a programmatic fashion.
  * 
- *
+ * I.E. if this is present in the header : 
+ * 
+ * @code
+ * # define STREETLAMPSCENARIO
+ * @endcode
+ * 
+ * then the main logic will activate the Street Lamp management scenario. 
+ * 
+ * Because we are doing this in an infinite loop, each run is seperated by a delay, specified in the header by RUNTIME_DELAY.
+ * 
+ * @section LoRa
+ * 
+ * Furthermore, because each arduinos is uploading its gathered data, we configure the LoRa stach during setup(), 
+ * then once every 10 loop, we send a payload.
+ * 
+ * This is not the most "efficient" way to do so, because we may miss some informations along the way (some information may get changed from one run to another),
+ * but because we are using LoRa, we have to keep in mind the Duty cycle and faire use of the bandwith.
+ * 
+ * 
  */
+
+
 #include "header.hpp"
 #include "sensors.hpp"
+#include "lora.hpp"
 
 extern char *__brkval;
+int counter = 0;
 
 /**
 @brief Quick function that returns the space between stack and heap.
@@ -140,21 +164,18 @@ void WasteScenario()
  */
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(57600);
+    delay(2000);
     Serial.println("Smart city starting ! ");
-    Serial.println("Listing enabled scenarios..");
+    delay(2000);
 #ifdef WASTESCENARIO
-    Serial.println("Waste management scenario is enabled");
     UltraSonicSensorsLen = sizeof(UltrasonicSensors) / sizeof(UltrasonicSensors[0]);
-    Serial.print("Number of trash cans connected : ");
-    Serial.println(UltraSonicSensorsLen);
+
 #endif
 
 #ifdef PARKINGSCENARIO
-    Serial.println("Parking monitoring scenario is enabled");
     HallSensorsLen = sizeof(HallSensors) / sizeof(HallSensors[0]);
-    Serial.print("Number of parking spots connected : ");
-    Serial.println(HallSensorsLen);
+
 #endif
 
 #ifdef STREETLAMPSCENARIO
@@ -164,6 +185,8 @@ void setup()
 #ifdef CITYMETRICSCENARIO
     Serial.println("City metrics scenario is enabled");
 #endif
+setupLoRaStack();
+
 }
 
 /**
@@ -175,10 +198,6 @@ void setup()
   */
 void loop()
 {
-#ifdef DEBUG
-    Serial.print("Stack to heap interval : ");
-    Serial.println(freeMemory());
-#endif
 
 #ifdef WASTESCENARIO
     WasteScenario();
@@ -196,5 +215,14 @@ void loop()
     StreetLampsScenario();
 #endif
 
+    // Delay between each run
     delay(RUNTIME_INTERVAL);
+
+
+    // Send message every 10 loop
+    if (counter % 10 == 0){
+        sendLoRaMessage(data);
+        Serial.println(counter);
+    }
+    counter++;
 }

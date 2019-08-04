@@ -10,7 +10,7 @@ RECURSIVE              = YES
 ENABLE_PREPROCESSING   = NO
 QUIET                  = YES
 GENERATE_LATEX         = NO
-
+EXCLUDE_PATTERNS = */lib/arduino*
 
 USE_MDFILE_AS_MAINPAGE = README.md
 GENERATE_HTML          = YES

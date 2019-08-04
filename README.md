@@ -16,7 +16,8 @@ This document describes the context, purpose and a quick overview of the smart c
 
 ## Purpose
 
-
+This smart city mockup is a 3D printed / laser cutted model designed to better explains how a smart city can be equipped in IoT, 
+and how it impact the city.
 
 ## Hardware used
 
@@ -33,19 +34,22 @@ Here is a list of each component :
 
 ## Smart scenarios
 
-The aforementionned sensors allows us to create some scenarios that a future, smart city could integrate : 
+Each Arduino is connected to a subset of the aforementionned sensors, creating some scenarios that a future, smart city could integrate : 
 
 **Street lamps control**
 
-The street lamps are reacting to a light level sensor, which determines the needed brightness level of the street lamps.
-
+The street lamps are reacting to a light level sensor, which determines the needed brightness level of the street lamps. 
 **Trash cans monitoring**
+
+The city trash cans are monitored through an ultrasonic sensor, it's fullness status can be reported and the garbage collector system can be adjusted accordingly. 
 
 **Parking management**
 
+Every parking spot can report being taken using a hal effect sensor.
+
 **City's data gathering**
 
-
+The city's temperature and noise level are also monitored.
 
 ## How to install
 
@@ -80,8 +84,8 @@ Here is an example `header.hpp`, configured with both Street Lamps control and p
 ```c
 #define STREETLAMPSCENARIO
 //#define WASTESCENARIO
-#define PARKINGSCENARIO
 //#define CITYMETRICSCENARIO
+#define PARKINGSCENARIO
 ```
 
 You must also report the correct pin layout, such as :
@@ -125,13 +129,21 @@ Just add `Serial.println(freeMemory());` in your loop. If this gradually decreas
 
 ### LoraWAN Stack
 
+The antennas we are using for transmitting data wirelessly is through LoRaWANs antennas. Unfortunately, they are not the 
+most efficient for the task (they are way too big and powerful for this use case), and their software has some bugs :
 
+- The library is outputing debug info through the Serial object, but it's not initialized by default and it has to be at a 57600 baudrate. This means you'll need a `Serial.begin(57600);` in your code if you want to output stuff to the console.
+- If the main code is calling the Serial object while the lora lib is also using it (although you don't know when it will), it may crash, aka reset the arduino. 
+- The lib is very heavy, using about 80% of an Arduino Uno R3's flash memory. That's not cool.
+
+Alternatives that should be investigated in the future, are HopeRF 95 modules, on top of which you could run [LMIC](https://github.com/matthijskooijman/arduino-lmic).
 
 ## License
 
 2019, k0rventen
 
-**MIT License.**
+The LoRa library is GPL, therefore is whatever code calling it, including the `/src` dir.
+But my lib for the sensors in `/lib/sensors` is under MIT.
 
-Use it. Tweak it. Improve on it.
- 
+It's open source.
+Use it. Tweak it. Improve on it. Share it.

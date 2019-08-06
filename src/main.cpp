@@ -32,7 +32,6 @@
  * 
  */
 
-
 #include "header.hpp"
 #include "sensors.hpp"
 #include "lora.hpp"
@@ -60,9 +59,11 @@ int freeMemory()
  */
 void CityMetricsScenario()
 {
-    int dB = analogRead(SoundSensor);
+    int dB = get_dB_from_noise_sensor(SoundSensor);
+    Serial.println(dB);
+
     int celsius = get_temperature_from_temperature_pin(TemperatureSensor);
-    bool flood = digitalRead(FloodSensor);
+    Serial.println(celsius);
 }
 #endif
 
@@ -76,20 +77,24 @@ void CityMetricsScenario()
  */
 void StreetLampsScenario()
 {
-    int brightness = analogRead(BrightnessSensor);
-
-    if (brightness > BRIGHTNESSTHRESHOLD && !StreetLampStatus)
+    int brightness = get_brightness_percentage(BrightnessSensor);
+#ifdef DEBUG
+    Serial.println("Street Lamp scenario : ");
+    Serial.print("Brightness percentage is : ");
+    Serial.println(brightness);
+#endif
+    if (brightness < BRIGHTNESSTHRESHOLD && !StreetLampStatus)
     {
-        for (int i = 0; i < 255; i++)
-        {
-            
-        }
+        Serial.println("Brightness is above threshold, turning street lamps off !");
+        fadeStreetLampsUp(StreetLamps, StreetLampsNumber);
         StreetLampStatus = true;
     }
 
-    else if (brightness < BRIGHTNESSTHRESHOLD && StreetLampStatus)
+    else if (brightness > BRIGHTNESSTHRESHOLD && StreetLampStatus)
     {
-        fade
+        Serial.println("Brightness is under threshold, turning street lamps on !");
+        fadeStreetLampsDown(StreetLamps, StreetLampsNumber);
+        StreetLampStatus = false;
     }
 }
 #endif
@@ -136,6 +141,7 @@ void ParkingScenario()
  */
 void WasteScenario()
 {
+    Serial.println("Waste");
     for (int i = 0; i < UltraSonicSensorsLen; i++)
     {
         long distance = get_distance_from_ultrasonic_pin(UltrasonicSensors[i]);
@@ -178,15 +184,9 @@ void setup()
 
 #endif
 
-#ifdef STREETLAMPSCENARIO
-    Serial.println("Street lamp control scenario is enabled");
+#ifdef LORA
+    setupLoRaStack();
 #endif
-
-#ifdef CITYMETRICSCENARIO
-    Serial.println("City metrics scenario is enabled");
-#endif
-setupLoRaStack();
-
 }
 
 /**
@@ -218,11 +218,14 @@ void loop()
     // Delay between each run
     delay(RUNTIME_INTERVAL);
 
-
     // Send message every 10 loop
-    if (counter % 10 == 0){
+    if (counter == 10)
+    {
+        counter = 0;
+#ifdef LORA
+        Serial.println("Sending LoRa frame");
         sendLoRaMessage(data);
-        Serial.println(counter);
+#endif
     }
     counter++;
 }

@@ -13,10 +13,27 @@ long get_distance_from_ultrasonic_pin(int pin)
 }
 
 /**
- * @brief Get the temperature from temperature pin object
+ * @brief Get the brightness percentage from an analog brightness sensor
  * 
- * @param pin 
- * @return int 
+ * The sensor is returning a range between 0 (complete dark) and 720 (maximum sensitivity of the sensor)
+ * We map this range to 0-100 and return the corresponding value.
+ * 
+ * @param pin the analog pin connected to the brightness sensor
+ * @return the percentage (0-100) perceived by the sensor
+ */
+int get_brightness_percentage(int pin){
+    int raw = analogRead(pin);
+    int percent = map(raw,0,720,0,100);
+    return percent;
+}
+/**
+ * @brief Get the temperature from a temperature sensor
+ * 
+ * The quick math involved to turn the analog voltage response into a readable
+ * celsius value is taken from the datasheet of the sensor.
+ * 
+ * @param pin the analog pin connected to the temperature sensor
+ * @return int the current temperature in degree celsius
  */
 int get_temperature_from_temperature_pin(int pin)
 {
@@ -70,26 +87,38 @@ int get_dB_from_noise_sensor(int pin)
     return dB;
 }
 
+/**
+ * @brief fade up a ChainableLED array, one led at a time.
+ * 
+ * @param array the ChainableLED object
+ * @param len the number of LEDs on the ChainableLED array.
+ */
 void fadeStreetLampsUp(ChainableLED array, int len)
 {
     for (byte lamp = 0; lamp < len; lamp++)
     {
-        for (int i = 0; i < 255; i++)
+        for (int i = 0; i <= 255; i+=5)
         {
             array.setColorRGB(lamp, i, i, i);
-            delay(10);
+            delay(4);
         }
     }
 }
 
+/**
+ * @brief fade down a ChainableLED array, one led at a time.
+ * 
+ * @param array the ChainableLED object
+ * @param len the number of LEDs on the ChainableLED array.
+ */
 void fadeStreetLampsDown(ChainableLED array, int len)
 {
     for (byte lamp = 0; lamp < len; lamp++)
     {
-        for (int i = 255; i >= 0; i--)
+        for (int i = 255; i >= 0; i-=5)
         {
             array.setColorRGB(lamp, i, i, i);
-            delay(10);
+            delay(4);
         }
     }
 }

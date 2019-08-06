@@ -3,19 +3,19 @@
 /**
  * @brief Configure the LoRaWAN stack before using it
  * 
- * We just factory reset the antenna, then we apply the config from the 
- * variables defined above (DEVICE_EUI, etc..)
+ * We just reset the antenna, then we apply the config from the 
+ * variables defined in the header (DEVICE_EUI, etc..)
  * 
  */
 void setupLoRaStack()
 {
-  error = LoRaWAN.ON(socket);
-  LoRaWAN.factoryReset();
-  error = LoRaWAN.setDeviceEUI(DEVICE_EUI);
-  error = LoRaWAN.setAppEUI(APP_EUI);
-  error = LoRaWAN.setAppKey(APP_KEY);
+  LoRaWAN.ON(socket);
+  LoRaWAN.reset();
+  LoRaWAN.setDeviceEUI(DEVICE_EUI);
+  LoRaWAN.setAppEUI(APP_EUI);
+  LoRaWAN.setAppKey(APP_KEY);
   LoRaWAN.setDataRate(5);
-  error = LoRaWAN.saveConfig();
+  LoRaWAN.saveConfig();
   LoRaWAN.getDeviceEUI();
   LoRaWAN.getAppEUI();
 }

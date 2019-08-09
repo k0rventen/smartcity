@@ -1,10 +1,21 @@
 # This file is a template, and might need editing before it works on your project.
 # Full project: https://gitlab.com/pages/doxygen
-image: alpine
+image: debian:stretch
+
+build:
+  tags:
+    - armhf-host
+  script:
+    - apt update && apt install python3-pip -y
+    - pip3 install platformio
+    - sed -i 's/\/\/#define/#define/g' include/header.hpp
+    - platformio run
 
 pages:
+  tags:
+    - x86_64-host
   script:
-    - apk update && apk add doxygen
+    - apt update && apt install doxygen -y
     - doxygen
     - mv doc/ public/
   artifacts:

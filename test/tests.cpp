@@ -7,7 +7,7 @@
  * 
  * They see me testin', they hatin'...
  * 
- * @section "How to test"
+ * @section  tests "How to test"
  * 
  * PlatformIO makes it really easy to make unit tests. If your project is correctly strucutured,
  * (aka having all your functions placed under lib/), you just have to use the pre-written code and embed your functions.

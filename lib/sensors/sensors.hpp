@@ -1,3 +1,11 @@
+/**
+ * @file sensors.hpp
+ * 
+ * This defines some variables for the sensors, 
+ * such as thresholds for the brightness and ultrasonic sensors.
+ * 
+ * 
+ */
 #include <Arduino.h>      // base framework
 #include <Ultrasonic.h>   // For the ultrasonic sensors
 #include <math.h>         // To do some maths
@@ -6,7 +14,7 @@
 const int B = 4275;                  //! value of the thermistor
 const long R0 = 100000;              //! R0 = 100k
 const long ULTRASONICTHRESHOLD = 5;  //! Distance in centimeters that differentiates a full trash can from an empty one
-const int BRIGHTNESSTHRESHOLD = 90; //! Arbitrary brightness threshold for day/night detection
+const int BRIGHTNESSTHRESHOLD = 70; //! Arbitrary brightness threshold for day/night detection
 const int RUNTIME_INTERVAL = 1000;   //! time in ms between runs
 
 long get_distance_from_ultrasonic_pin(int pin);

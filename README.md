@@ -1,5 +1,7 @@
 # Smart city
 
+![lol](https://code.axians.com/corentin.farque/smartcity/badges/master/pipeline.svg)
+
 This document describes the context, purpose and a quick overview of the smart city mockup project, specifically from a programming point of view.
 
 - [Smart city](#smart-city)
@@ -9,6 +11,13 @@ This document describes the context, purpose and a quick overview of the smart c
   - [How to install](#how-to-install)
   - [How to configure](#how-to-configure)
   - [Technical deepdive & interesting bits](#technical-deepdive--interesting-bits)
+    - [Payload structure](#payload-structure)
+      - [TL;DR](#tldr)
+      - [Explanations](#explanations)
+      - [Garbage scenario](#garbage-scenario)
+      - [Parking scenario](#parking-scenario)
+      - [Street lamps scenario](#street-lamps-scenario)
+      - [Metrics scenario](#metrics-scenario)
     - [Debugging memory overflow & stack crashes](#debugging-memory-overflow--stack-crashes)
     - [LoraWAN Stack](#lorawan-stack)
   - [License](#license)
@@ -112,6 +121,49 @@ will make a more verbose output, usefull during testing. You can comment it when
 
 ## Technical deepdive & interesting bits
 
+### Payload structure
+
+#### TL;DR
+| Byte number | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 |
+|-------------|-------|---------|--------------|---------|---------|---------|---------|-----------|-----------|-----------|-----------|-----------|-----------|--------------|-------------|-------------|-------|-------|-------|
+| Desc | Waste | Parking | Street Lamps | Metrics | Trash 1 | Trash 2 | Trash 3 | Parking 1 | Parking 2 | Parking 3 | Parking 4 | Parking 5 | Parking 6 | Street Lamps | Temperature | Temperature | Noise | Noise | Flood |
+| Value | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 2 | 5 | 4 | 6 | 0 |
+
+This translates to : Parking and metrics scenarios are enabled, trash can 3 is filled up, parking spots 1 and 4 are in use, it's 25°C out there, its currently pretty quiet at 46 dB and there is no flood detected.
+
+#### Explanations
+
+The payload is using a very simple structure, whithout any base64 or hex encoding as it's quite unecessary.
+
+The payload is structured as follows :
+
+The first 4 bytes are configuring which scenarios are enabled. 0 means disabled, 1 means enabled.
+
+The order is as follows : waste, parking, street lamps,metrics. `0101` means for example that both parking and metrics are enabled. 
+
+
+The following bytes contains the actual data. As each scenario upload various type of data (integers, booleans etc), the payload follows this guide : 
+
+#### Garbage scenario
+
+the waste scenario is taking up 3 bytes. Each byte represents a trash can, and the value corresponds to the trash can fullness. 1 means the trash can is full, 0 means otherwise.
+
+#### Parking scenario
+
+In a smimilar fashion as the waste scenario, the parking scenario is using 6 bytes, 1 for each parking spot. A 1 means the spot is taken, 0 means free.
+
+
+#### Street lamps scenario 
+
+The street lamp scenario is using only one byte. For now we only upload a day/night status, as the brightness value is arbitrary and does not accurately represents a Lux ou lumen value.
+
+#### Metrics scenario
+
+The metrics scenario is taking up 5 bytes. The scenario is gathering a volume (dB), temperature (°C) and flood metric. The two first are integers, and the lqst one is a simple 0/1.
+
+
+The rest of the bytes can be filled with whatever, we don't look them up.
+
 ### Debugging memory overflow & stack crashes
 
 If sometimes unexpected things are happening after a while, it may be time to check the memory pressure evolution of the programm. Here is a quick function that returns the interval between the stack and the heap. 
@@ -125,7 +177,6 @@ int freeMemory()
 }
 ```
 Just add `Serial.println(freeMemory());` in your loop. If this gradually decreases towards 0, you have a memory leakage somewhere and stuff will break at some point. Dunno when, but it will.
-
 
 ### LoraWAN Stack
 

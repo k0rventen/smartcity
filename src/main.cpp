@@ -59,13 +59,39 @@ int freeMemory()
  */
 void CityMetricsScenario()
 {
+    Serial.println("Metrics Scenario");
+
+    // Noise pollution
     int dB = get_dB_from_noise_sensor(SoundSensor);
     Serial.println(dB);
+    if (dB > 99)
+    {
+        dB = 99;
+    }
 
+    // Temperature
     int celsius = get_temperature_from_temperature_pin(TemperatureSensor);
     Serial.println(celsius);
+    if (celsius > 99)
+    {
+        celsius = 99;
+    }
+
+    // Flood
+    bool flood = digitalRead(FloodSensor);
+    Serial.println(flood);
+    if (flood)
+    {
+        digitalWrite(FloodLED, HIGH);
+    }
+    else
+    {
+        digitalWrite(FloodLED, LOW);
+    }
 }
+
 #endif
+
 
 #ifdef STREETLAMPSCENARIO
 /**
@@ -78,6 +104,9 @@ void CityMetricsScenario()
 void StreetLampsScenario()
 {
     int brightness = get_brightness_percentage(BrightnessSensor);
+
+    // Add to the payload
+    
 #ifdef DEBUG
     Serial.println("Street Lamp scenario : ");
     Serial.print("Brightness percentage is : ");
@@ -88,6 +117,7 @@ void StreetLampsScenario()
         Serial.println("Brightness is above threshold, turning street lamps off !");
         fadeStreetLampsUp(StreetLamps, StreetLampsNumber);
         StreetLampStatus = true;
+        LoRaPayload[13] = '1';
     }
 
     else if (brightness > BRIGHTNESSTHRESHOLD && StreetLampStatus)
@@ -95,6 +125,7 @@ void StreetLampsScenario()
         Serial.println("Brightness is under threshold, turning street lamps on !");
         fadeStreetLampsDown(StreetLamps, StreetLampsNumber);
         StreetLampStatus = false;
+        LoRaPayload[13] = '0';
     }
 }
 #endif
@@ -122,10 +153,12 @@ void ParkingScenario()
         if (isTaken)
         {
             SetLedStatus(ParkingLEDS[i], HIGH);
+            LoRaPayload[i + 7] = '1';
         }
         else
         {
             SetLedStatus(ParkingLEDS[i], LOW);
+            LoRaPayload[i + 7] = '0';
         }
     }
 }
@@ -154,10 +187,12 @@ void WasteScenario()
         if (distance < ULTRASONICTHRESHOLD)
         {
             SetLedStatus(WasteLEDs[i], HIGH);
+            LoRaPayload[i + 4] = '1';
         }
         else
         {
             SetLedStatus(WasteLEDs[i], LOW);
+            LoRaPayload[i + 4] = '0';
         }
     }
 }
@@ -176,12 +211,22 @@ void setup()
     delay(2000);
 #ifdef WASTESCENARIO
     UltraSonicSensorsLen = sizeof(UltrasonicSensors) / sizeof(UltrasonicSensors[0]);
-
+    LoRaPayload[0] = '1';
 #endif
 
 #ifdef PARKINGSCENARIO
     HallSensorsLen = sizeof(HallSensors) / sizeof(HallSensors[0]);
+    LoRaPayload[1] = '1';
+#endif
 
+#ifdef STREETLAMPSCENARIO
+    LoRaPayload[2] = '1';
+    pinMode(BrightnessSensor,INPUT);
+#endif
+
+#ifdef CITYMETRICSCENARIO
+    LoRaPayload[3] = '1';
+    pinMode(FloodLED, OUTPUT);
 #endif
 
 #ifdef LORA
@@ -224,7 +269,7 @@ void loop()
         counter = 0;
 #ifdef LORA
         Serial.println("Sending LoRa frame");
-        sendLoRaMessage(data);
+        sendLoRaMessage(LoRaPayload);
 #endif
     }
     counter++;

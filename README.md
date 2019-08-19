@@ -1,6 +1,10 @@
 # Smart city
 
-![lol](https://code.axians.com/corentin.farque/smartcity/badges/master/pipeline.svg)
+CI : ![status](https://code.axians.com/corentin.farque/smartcity/badges/master/pipeline.svg)
+
+![](ressources/model.png)
+
+What a smart city could be like, integrating IoT sensors and scenarios to further enhance the convenience of the city's services for the inhabitants, while improving its energetic efficiency.
 
 This document describes the context, purpose and a quick overview of the smart city mockup project, specifically from a programming point of view.
 
@@ -25,19 +29,18 @@ This document describes the context, purpose and a quick overview of the smart c
 
 ## Purpose
 
-This smart city mockup is a 3D printed / laser cutted model designed to better explains how a smart city can be equipped in IoT, 
-and how it impact the city.
+This smart city mockup is a 3D printed / laser cutted model of a city, designed to better explains what is a smart city, how IoT is integrated in it, and how its impacting the city.
 
 ## Hardware used
 
 Here is a list of each component : 
 - Arduino Uno as the micro-controller, on top of which sits:
   - Grove Hat for easy cable management, with the following sensors : 
-    - Temperature sensor
-    - Noise sensor
-    - Light sensor
-    - Hall effect sensors
-    - Various LEDs
+    - Temperature sensor,
+    - Noise sensor,
+    - Light sensor,
+    - Hall effect sensors,
+    - Various LEDs,
     - Ultrasonic distance sensors,
   - A LoRaWAN antenna, to upload the gathered data to a nearby gateway
 
@@ -48,28 +51,31 @@ Each Arduino is connected to a subset of the aforementionned sensors, creating s
 **Street lamps control**
 
 The street lamps are reacting to a light level sensor, which determines the needed brightness level of the street lamps. 
+This enables a better day/night toggling of the street lamps.
+
 **Trash cans monitoring**
 
 The city trash cans are monitored through an ultrasonic sensor, it's fullness status can be reported and the garbage collector system can be adjusted accordingly. 
 
 **Parking management**
 
-Every parking spot can report being taken using a hal effect sensor.
+Every parking spot can report being taken using a hall effect sensor. This permit a better management of a city's given parking capabilites. 
 
 **City's data gathering**
 
-The city's temperature and noise level are also monitored.
+The city's temperature and noise level are also monitored. This enables long term data analysis, to evaluate long term actions and changes.
+A flood detection system is also present, which can alert the surrounding population of an eventual incoming flood.
 
 ## How to install
 
 This project is built on top of various frameworks that simplify the development process :
 - [PlatformIO](https://platformio.org) for developing, compiling & deploying the code to the embedded devices,
-- [Doxygen](http://www.doxygen.nl/index.html) for automating thendocumentation building.
+- [Doxygen](http://www.doxygen.nl/index.html) for automating the documentation building.
 
 Once platformIO is installed ( aka **pip install platformio**), you will need just three commands to build the project: 
 
 ```
-git clone 
+git clone https://code.axians.com/corentin.farque/smartcity
 cd SmartCity
 platformio run
 ```
@@ -176,6 +182,7 @@ int freeMemory()
     return &top - __brkval;
 }
 ```
+
 Just add `Serial.println(freeMemory());` in your loop. If this gradually decreases towards 0, you have a memory leakage somewhere and stuff will break at some point. Dunno when, but it will.
 
 ### LoraWAN Stack

@@ -41,6 +41,8 @@ int ParkingLEDS[] = {A2,A3,9,4,A0,A1};
 int StreetLampsNumber = 8;
 ChainableLED StreetLamps(4,5, StreetLampsNumber);
 
+const int RUNTIME_INTERVAL = 4000;   //! time in ms between runs
+
 bool StreetLampStatus = false;       //! Status of the streetlamps
 int UltraSonicSensorsLen;            //! Number of sensors in the array. Defined at runtime
 int HallSensorsLen;                  //! Number of sensors in the array.

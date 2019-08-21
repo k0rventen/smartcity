@@ -7,7 +7,7 @@
  * 
  * They see me testin', they hatin'...
  * 
- * @section  tests "How to test"
+ * @section tests "How to test"
  * 
  * PlatformIO makes it really easy to make unit tests. If your project is correctly strucutured,
  * (aka having all your functions placed under lib/), you just have to use the pre-written code and embed your functions.
@@ -22,7 +22,7 @@
  * 
  * 
  * If you want to test this code, once the project is cloned and platformIO installed,
- * just ruin a quick `platformio test` !
+ * just run a quick `platformio test` with the arduino connected !
  * 
  */
 #include <Arduino.h>
@@ -32,7 +32,10 @@
 
 ChainableLED streetlamps(7,8, 3);
 
-
+/**
+ * @brief test the noise sensor for _accurate_ readings of the noise level
+ * 
+ */
 void test_noise()
 {
     Serial.println("Try to make the less noise possible around the noise sensor..");
@@ -42,15 +45,18 @@ void test_noise()
    Serial.println("Now speak up next to it");
    delay(3000);
    int db1 = get_dB_from_noise_sensor(SoundSensor);
-   TEST_ASSERT_GREATER_OR_EQUAL(db,db1);
+   TEST_ASSERT_GREATER_THAN(db,db1);
    Serial.print("Initial dB was ");
    Serial.print(db);
    Serial.print(" dB, second was ");
    Serial.print(db1);
    Serial.println(" dB");
-
 }
 
+/**
+ * @brief test the ultrasonic sensor for correct readings
+ * 
+ */
 void test_ultrasonic_sensor()
 {
     Serial.print("Put your hand above the ultrasonic sensor connected on pin ");
@@ -65,6 +71,11 @@ void test_ultrasonic_sensor()
     TEST_ASSERT_GREATER_THAN(distance, distance1);
 }
 
+
+/**
+ * @brief very important test that's testing the arduino deep mathematical knowledge, aka 1++;
+ * 
+ */
 void very_important_test(){
     int one = 1;
     int two = 2;
@@ -73,17 +84,15 @@ void very_important_test(){
     TEST_ASSERT_EQUAL(one,two);
 }
 
-
+/**
+ * @brief quick test of the street lamps ramping all up then down
+ * 
+ */
 void test_street_lamps()
 {
-    Serial.println("Ramping up the leds");
+    Serial.println("Ramping up the leds..");
     fadeStreetLampsUp(streetlamps,1);
-    Serial.println("All LEDS are up ? (y/n)");
-    delay(4000);
-    int rep = Serial.read();
-    Serial.println(rep);
-    TEST_ASSERT_EQUAL('y',(char) rep);
-    Serial.println("Ramping down");
+    Serial.println("Ramping down..");
     fadeStreetLampsDown(streetlamps,1);
 }
 

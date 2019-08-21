@@ -9,7 +9,7 @@ What a smart city could be like, integrating IoT sensors and scenarios to furthe
 This document describes the context, purpose and a quick overview of the smart city mockup project, specifically from a programming point of view.
 
 - [Smart city](#smart-city)
-  - [Purpose](#purpose)
+  - [Context & Purpose](#context--purpose)
   - [Hardware used](#hardware-used)
   - [Smart scenarios](#smart-scenarios)
   - [How to install](#how-to-install)
@@ -27,9 +27,11 @@ This document describes the context, purpose and a quick overview of the smart c
   - [License](#license)
 
 
-## Purpose
+## Context & Purpose
 
-This smart city mockup is a 3D printed / laser cutted model of a city, designed to better explains what is a smart city, how IoT is integrated in it, and how its impacting the city.
+This project was hosted at Axians France. 
+
+The smart city mockup is a 3D printed / laser cutted model of a city, designed to better explains what is a smart city, how IoT is integrated in it, and how its impacting the city.
 
 ## Hardware used
 
@@ -43,6 +45,8 @@ Here is a list of each component :
     - Various LEDs,
     - Ultrasonic distance sensors,
   - A LoRaWAN antenna, to upload the gathered data to a nearby gateway
+- A Multitech LoRa gateaway, to receive the payloads from the arduinos
+
 
 ## Smart scenarios
 
@@ -72,7 +76,7 @@ This project is built on top of various frameworks that simplify the development
 - [PlatformIO](https://platformio.org) for developing, compiling & deploying the code to the embedded devices,
 - [Doxygen](http://www.doxygen.nl/index.html) for automating the documentation building.
 
-Once platformIO is installed ( aka **pip install platformio**), you will need just three commands to build the project: 
+Once platformIO is installed ( aka **pip3 install platformio**), you will need just three commands to build the project: 
 
 ```
 git clone https://code.axians.com/corentin.farque/smartcity
@@ -80,7 +84,7 @@ cd SmartCity
 platformio run
 ```
 
-If you also want to build the documentation yourself, just install doxygen (aka **apt install doxygen**), `cd` in the `SmartCity` directory and run :
+If you also want to build the documentation yourself, just install doxygen (aka **apt/brew/yum install doxygen**), `cd` in the `SmartCity` directory and run :
 
 ```
 doxygen
@@ -158,14 +162,13 @@ the waste scenario is taking up 3 bytes. Each byte represents a trash can, and t
 
 In a smimilar fashion as the waste scenario, the parking scenario is using 6 bytes, 1 for each parking spot. A 1 means the spot is taken, 0 means free.
 
-
 #### Street lamps scenario 
 
 The street lamp scenario is using only one byte. For now we only upload a day/night status, as the brightness value is arbitrary and does not accurately represents a Lux ou lumen value.
 
 #### Metrics scenario
 
-The metrics scenario is taking up 5 bytes. The scenario is gathering a volume (dB), temperature (°C) and flood metric. The two first are integers, and the lqst one is a simple 0/1.
+The metrics scenario is taking up 5 bytes. The scenario is gathering a volume (dB), temperature (°C) and flood metric. The two first are integers, and the last one is a simple 0/1.
 
 
 The rest of the bytes can be filled with whatever, we don't look them up.
@@ -194,7 +197,7 @@ most efficient for the task (they are way too big and powerful for this use case
 - If the main code is calling the Serial object while the lora lib is also using it (although you don't know when it will), it may crash, aka reset the arduino. 
 - The lib is very heavy, using about 80% of an Arduino Uno R3's flash memory. That's not cool.
 
-Alternatives that should be investigated in the future, are HopeRF 95 modules, on top of which you could run [LMIC](https://github.com/matthijskooijman/arduino-lmic).
+Alternatives should be investigated in the future, like HopeRF 95 modules, on top of which you could run [LMIC](https://github.com/matthijskooijman/arduino-lmic).
 
 ## License
 

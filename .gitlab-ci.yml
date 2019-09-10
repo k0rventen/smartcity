@@ -2,7 +2,7 @@ image: debian:stretch
 
 build:
   tags:
-    - x86_64-host
+    - docker
   script:
     - apt update && apt install python3-pip -y
     - pip3 install platformio
@@ -13,7 +13,7 @@ build:
 
 pages:
   tags:
-    - armhf-host
+    - docker
   script:
     - apt update && apt install doxygen -y
     - doxygen

@@ -1,6 +1,8 @@
 image: debian:stretch
 
 build:
+  variables:
+    CI_DEBUG_TRACE: "true"
   tags:
     - docker
   script:
@@ -12,6 +14,8 @@ build:
     - platformio run
 
 pages:
+  variables:
+    CI_DEBUG_TRACE: "true"
   tags:
     - docker
   script:

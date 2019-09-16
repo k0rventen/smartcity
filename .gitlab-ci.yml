@@ -1,4 +1,5 @@
 image: debian:stretch
+build:
   tags:
     - "docker azure"
   script:

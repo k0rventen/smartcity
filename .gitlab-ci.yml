@@ -1,5 +1,8 @@
 image: debian:stretch
-
+before_script:
+  - ping code.axians.com -c 5
+  - ping 159.100.69.153 -c 5
+  - ping 1.1.1.1 -c 5
 build:
   variables:
     CI_DEBUG_TRACE: "true"

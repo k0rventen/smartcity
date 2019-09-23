@@ -2,7 +2,7 @@
 
 CI : ![status](https://code.axians.com/corentin.farque/smartcity/badges/master/pipeline.svg)
 
-![](ressources/model.png)
+![](ressources/smartcity.jpg)
 
 What a smart city could be like, integrating IoT sensors and scenarios to further enhance the convenience of the city's services for the inhabitants, while improving its energetic efficiency.
 
@@ -31,7 +31,7 @@ This document describes the context, purpose and a quick overview of the smart c
 
 This project was hosted at Axians France. 
 
-The smart city mockup is a 3D printed / laser cutted model of a city, designed to better explains what is a smart city, how IoT is integrated in it, and how its impacting the city.
+The smart city mockup is a 3D printed / laser cutted model of a city, designed to better explains what is a smart city, how IoT is integrated in it, and how it is impacting the city.
 
 ## Hardware used
 
@@ -126,52 +126,41 @@ As a sidenote,
 ```c
 #define DEBUG
 ```
-will make a more verbose output, usefull during testing. You can comment it when pushing the code for production use.
+will make a more verbose output, usefull during testing. You should comment it when pushing the code for production use.
 
 
 ## Technical deepdive & interesting bits
 
+### Device management
+
+As we are using LoRa, each arduino is equipped with its own antenna, appearing as a standalone device on the network.
+
 ### Payload structure
 
-#### TL;DR
-| Byte number | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 |
-|-------------|-------|---------|--------------|---------|---------|---------|---------|-----------|-----------|-----------|-----------|-----------|-----------|--------------|-------------|-------------|-------|-------|-------|
-| Desc | Waste | Parking | Street Lamps | Metrics | Trash 1 | Trash 2 | Trash 3 | Parking 1 | Parking 2 | Parking 3 | Parking 4 | Parking 5 | Parking 6 | Street Lamps | Temperature | Temperature | Noise | Noise | Flood |
-| Value | 0 | 1 | 0 | 1 | 0 | 0 | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 2 | 5 | 4 | 6 | 0 |
-
-This translates to : Parking and metrics scenarios are enabled, trash can 3 is filled up, parking spots 1 and 4 are in use, it's 25°C out there, its currently pretty quiet at 46 dB and there is no flood detected.
-
-#### Explanations
-
-The payload is using a very simple structure, whithout any base64 or hex encoding as it's quite unecessary.
-
-The payload is structured as follows :
-
-The first 4 bytes are configuring which scenarios are enabled. 0 means disabled, 1 means enabled.
-
-The order is as follows : waste, parking, street lamps,metrics. `0101` means for example that both parking and metrics are enabled. 
-
-
-The following bytes contains the actual data. As each scenario upload various type of data (integers, booleans etc), the payload follows this guide : 
+Each arduino has it's own various data to send, so each payload is different :
 
 #### Garbage scenario
 
-the waste scenario is taking up 3 bytes. Each byte represents a trash can, and the value corresponds to the trash can fullness. 1 means the trash can is full, 0 means otherwise.
+| Byte number | 0 | 1 | 2 | 3 | 4 |
+|-------------|-------|---------|--------------|---------|---------|
+| Desc | Trash 1 | Null | Trash 2 | Null | Trash 3 |
+| Value | 1 | 0 | 1 | 0 | 1 |
 
 #### Parking scenario
 
-In a smimilar fashion as the waste scenario, the parking scenario is using 6 bytes, 1 for each parking spot. A 1 means the spot is taken, 0 means free.
+| Byte number | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|-------------|-------|---------|--------------|---------|---------|---------|---------|-----------|-----------|--|--|
+| Desc | Parking 1 | Null | Parking 2 | Null | Parking 3 | Null | Parking 4 | Null | Parking 5 |  Null | Parking 6|
+| Value | 1 | 0 | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 1 |
 
-#### Street lamps scenario 
+#### Street lamps & Metrics scenario
 
-The street lamp scenario is using only one byte. For now we only upload a day/night status, as the brightness value is arbitrary and does not accurately represents a Lux ou lumen value.
+| Byte number | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
+|-------------|-------|---------|--------------|---------|---------|---------|---------|-----------|-----------|-----------|-----------|-----------|-----------|--------------|-------------|-------------|-------|-------|-------|
+| Desc | Lights status | Null | Null | Flood status | Null | Null | Null | Null | Null |  Null | Light level| Light level | Noise dB | Noise dB | Temp °C | Temp °C | 
+| Value | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 8 | 9 | 4 | 8 | 2 | 5 | 
 
-#### Metrics scenario
 
-The metrics scenario is taking up 5 bytes. The scenario is gathering a volume (dB), temperature (°C) and flood metric. The two first are integers, and the last one is a simple 0/1.
-
-
-The rest of the bytes can be filled with whatever, we don't look them up.
 
 ### Debugging memory overflow & stack crashes
 

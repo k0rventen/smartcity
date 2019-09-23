@@ -22,10 +22,10 @@
 #include <math.h>         // To do some maths
 #include <ChainableLED.h> // Control the Leds for the street lamps
 
-#define DEBUG
+//#define DEBUG
 #define LORA
-//#define STREETLAMPSCENARIO
-#define WASTESCENARIO
+#define STREETLAMPSCENARIO
+//#define WASTESCENARIO
 //#define PARKINGSCENARIO
 #define CITYMETRICSCENARIO
 
@@ -46,4 +46,3 @@ const int RUNTIME_INTERVAL = 4000;   //! time in ms between runs
 bool StreetLampStatus = false;       //! Status of the streetlamps
 int UltraSonicSensorsLen;            //! Number of sensors in the array. Defined at runtime
 int HallSensorsLen;                  //! Number of sensors in the array.
-char LoRaPayload[] = "000000000000000000000000000000"; //! payload to be transmitter

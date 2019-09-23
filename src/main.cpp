@@ -36,20 +36,8 @@
 #include "sensors.hpp"
 #include "lora.hpp"
 
-extern char *__brkval;
 int counter = 0;
-
-/**
-@brief Quick function that returns the space between stack and heap.
-        If it goes to 0, you'll run into some serious problems, aka overflow or crash. 
-        
-@return the interval between the stack and the heap.
-*/
-int freeMemory()
-{
-    char top;
-    return &top - __brkval;
-}
+char LoRaPayload[31] = "000000000000000000000000000000"; //! payload to be transmitter
 
 #ifdef CITYMETRICSCENARIO
 /**
@@ -59,8 +47,6 @@ int freeMemory()
  */
 void CityMetricsScenario()
 {
-    Serial.println("Metrics Scenario");
-
     // Noise pollution
     int dB = get_dB_from_noise_sensor(SoundSensor);
     Serial.println(dB);
@@ -68,6 +54,13 @@ void CityMetricsScenario()
     {
         dB = 99;
     }
+    int tens = dB / 10;
+    int nums = dB % 10;
+    char c_tens = tens + '0';
+    char c_nums = nums + '0';
+    // Add to the payload
+    LoRaPayload[12] = c_tens;
+    LoRaPayload[13] = c_nums;
 
     // Temperature
     int celsius = get_temperature_from_temperature_pin(TemperatureSensor);
@@ -76,6 +69,13 @@ void CityMetricsScenario()
     {
         celsius = 99;
     }
+     tens = celsius / 10;
+     nums = celsius % 10;
+     c_tens = tens + '0';
+     c_nums = nums + '0';
+    // Add to the payload
+    LoRaPayload[14] = c_tens;
+    LoRaPayload[15] = c_nums;
 
     // Flood
     bool flood = digitalRead(FloodSensor);
@@ -83,15 +83,17 @@ void CityMetricsScenario()
     if (flood)
     {
         digitalWrite(FloodLED, HIGH);
+
+        LoRaPayload[3] = '1';
     }
     else
     {
         digitalWrite(FloodLED, LOW);
+        LoRaPayload[3] = '1';
     }
 }
 
 #endif
-
 
 #ifdef STREETLAMPSCENARIO
 /**
@@ -104,28 +106,37 @@ void CityMetricsScenario()
 void StreetLampsScenario()
 {
     int brightness = get_brightness_percentage(BrightnessSensor);
-
+    Serial.println(brightness);
+    if (brightness > 99)
+    {
+        brightness = 99;
+    }
+    int tens = brightness / 10;
+    int nums = brightness % 10;
+    char c_tens = tens + '0';
+    char c_nums = nums + '0';
     // Add to the payload
-    
+    LoRaPayload[10] = c_tens;
+    LoRaPayload[11] = c_nums;
+
 #ifdef DEBUG
     Serial.println("Street Lamp scenario : ");
     Serial.print("Brightness percentage is : ");
-    Serial.println(brightness);
+
 #endif
     if (brightness < BRIGHTNESSTHRESHOLD && !StreetLampStatus)
     {
-        Serial.println("Brightness is above threshold, turning street lamps off !");
         fadeStreetLampsUp(StreetLamps, StreetLampsNumber);
         StreetLampStatus = true;
-        LoRaPayload[13] = '1';
+
+        LoRaPayload[0] = '1';
     }
 
     else if (brightness > BRIGHTNESSTHRESHOLD && StreetLampStatus)
     {
-        Serial.println("Brightness is under threshold, turning street lamps on !");
         fadeStreetLampsDown(StreetLamps, StreetLampsNumber);
         StreetLampStatus = false;
-        LoRaPayload[13] = '0';
+        LoRaPayload[0] = '0';
     }
 }
 #endif
@@ -153,12 +164,12 @@ void ParkingScenario()
         if (isTaken)
         {
             SetLedStatus(ParkingLEDS[i], HIGH);
-            LoRaPayload[i + 7] = '1';
+            LoRaPayload[i * 2] = '1';
         }
         else
         {
             SetLedStatus(ParkingLEDS[i], LOW);
-            LoRaPayload[i + 7] = '0';
+            LoRaPayload[i * 2] = '0';
         }
     }
 }
@@ -174,7 +185,6 @@ void ParkingScenario()
  */
 void WasteScenario()
 {
-    Serial.println("Waste");
     for (int i = 0; i < UltraSonicSensorsLen; i++)
     {
         long distance = get_distance_from_ultrasonic_pin(UltrasonicSensors[i]);
@@ -187,12 +197,12 @@ void WasteScenario()
         if (distance < ULTRASONICTHRESHOLD)
         {
             SetLedStatus(WasteLEDs[i], HIGH);
-            LoRaPayload[i + 4] = '1';
+            LoRaPayload[i * 2] = '1';
         }
         else
         {
             SetLedStatus(WasteLEDs[i], LOW);
-            LoRaPayload[i + 4] = '0';
+            LoRaPayload[i * 2] = '0';
         }
     }
 }
@@ -211,26 +221,24 @@ void setup()
     delay(2000);
 #ifdef WASTESCENARIO
     UltraSonicSensorsLen = sizeof(UltrasonicSensors) / sizeof(UltrasonicSensors[0]);
-    LoRaPayload[0] = '1';
 #endif
 
 #ifdef PARKINGSCENARIO
     HallSensorsLen = sizeof(HallSensors) / sizeof(HallSensors[0]);
-    LoRaPayload[1] = '1';
 #endif
 
 #ifdef STREETLAMPSCENARIO
-    LoRaPayload[2] = '1';
-    pinMode(BrightnessSensor,INPUT);
+    pinMode(BrightnessSensor, INPUT);
 #endif
 
 #ifdef CITYMETRICSCENARIO
-    LoRaPayload[3] = '1';
     pinMode(FloodLED, OUTPUT);
 #endif
 
 #ifdef LORA
+    delay(1000);
     setupLoRaStack();
+    delay(1000);
 #endif
 }
 
@@ -263,14 +271,16 @@ void loop()
     // Delay between each run
     delay(RUNTIME_INTERVAL);
 
-    // Send message every 10 loop
-    if (counter == 10)
+    // Send message every 5 minutes
+    // A loop is 5s, meaning for 5 minute , we'll need 600 / 5 = 120 cycles
+    if (counter == 12)
     {
         counter = 0;
+        
 #ifdef LORA
-        Serial.println("Sending LoRa frame");
         sendLoRaMessage(LoRaPayload);
 #endif
     }
     counter++;
+    Serial.println(counter);
 }

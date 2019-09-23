@@ -20,12 +20,15 @@ static uint8_t socket = SOCKET1;
 static uint8_t PORT = 3;
 static uint8_t error;
 
-static char DEVICE_EUI[] = "0102030405060708"; //! The device eui
-static char DEVICE_ADDR[] = "05060708";
-static char NWK_SESSION_KEY[] = "01020304050607080910111213141516";
-static char APP_SESSION_KEY[] = "0102030405060102";
-static char APP_KEY[] = "000102030405060708090A0B0C0D0E0F";
-static char APP_EUI[] = "1112131415161718";
+// Garbage is 16,
+// Parking is 15, 
+// Lights & metrics is 14
+
+
+static char DEVICE_EUI[] = "0102030405060714";  // DEV_EUI for indentification
+static char DEVICE_ADDR[] = "06060714"; 
+static char NWK_SESSION_KEY[] = "01020304050607080910111213141516"; // Creds
+static char APP_SESSION_KEY[] = "000102030405060708090A0B0C0D0E0F"; // Creds
 
 
 void setupLoRaStack(void);

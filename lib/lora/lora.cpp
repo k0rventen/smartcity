@@ -9,15 +9,23 @@
  */
 void setupLoRaStack()
 {
-  LoRaWAN.ON(socket);
-  LoRaWAN.reset();
-  LoRaWAN.setDeviceEUI(DEVICE_EUI);
-  LoRaWAN.setAppEUI(APP_EUI);
-  LoRaWAN.setAppKey(APP_KEY);
-  LoRaWAN.setDataRate(5);
-  LoRaWAN.saveConfig();
-  LoRaWAN.getDeviceEUI();
-  LoRaWAN.getAppEUI();
+    LoRaWAN.ON(socket);
+
+    LoRaWAN.setDeviceEUI(DEVICE_EUI);
+
+    LoRaWAN.setDeviceAddr(DEVICE_ADDR);
+
+    LoRaWAN.setNwkSessionKey(NWK_SESSION_KEY);
+
+    LoRaWAN.setAppSessionKey(APP_SESSION_KEY);
+
+    delay(500);
+    LoRaWAN.saveConfig();
+    delay(500);
+
+    LoRaWAN.getDeviceEUI();
+
+    LoRaWAN.getDeviceAddr();
 }
 
 /**
@@ -29,7 +37,8 @@ void setupLoRaStack()
  */
 void sendLoRaMessage(char *message)
 {
-  error = LoRaWAN.joinOTAA();
+   LoRaWAN.ON(socket);
+  error = LoRaWAN.joinABP();
   if (error != 0)
   {
     Serial.print("Error while joining : ");

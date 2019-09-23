@@ -23,7 +23,7 @@ long get_distance_from_ultrasonic_pin(int pin)
  */
 int get_brightness_percentage(int pin){
     int raw = analogRead(pin);
-    int percent = map(raw,0,720,0,100);
+    int percent = map(raw,0,800,0,100);
     return percent;
 }
 /**
@@ -85,6 +85,7 @@ int get_dB_from_noise_sensor(int pin)
     int loudnessAvg = loudnessSum / 20;
     int dB = 20 * log10(loudnessAvg);
     return dB;
+    
 }
 
 /**
@@ -100,7 +101,7 @@ void fadeStreetLampsUp(ChainableLED array, int len)
         for (int i = 0; i <= 255; i+=5)
         {
             array.setColorRGB(lamp, i, i, i);
-            delay(4);
+            delay(2);
         }
     }
 }
@@ -118,7 +119,8 @@ void fadeStreetLampsDown(ChainableLED array, int len)
         for (int i = 255; i >= 0; i-=5)
         {
             array.setColorRGB(lamp, i, i, i);
-            delay(4);
+            delay(2);
         }
     }
 }
+

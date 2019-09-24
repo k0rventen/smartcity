@@ -273,7 +273,7 @@ void loop()
 
     // Send message every 5 minutes
     // A loop is 5s, meaning for 5 minute , we'll need 600 / 5 = 120 cycles
-    if (counter == 12)
+    if (counter == 60)
     {
         counter = 0;
         

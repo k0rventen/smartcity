@@ -24,10 +24,10 @@
 
 //#define DEBUG
 #define LORA
-#define STREETLAMPSCENARIO
+//#define STREETLAMPSCENARIO
 //#define WASTESCENARIO
-//#define PARKINGSCENARIO
-#define CITYMETRICSCENARIO
+#define PARKINGSCENARIO
+//#define CITYMETRICSCENARIO
 
 int UltrasonicSensors[] = {2,3,4};
 int HallSensors[] = {6,7,8,2,3,5};
@@ -41,7 +41,7 @@ int ParkingLEDS[] = {A2,A3,9,4,A0,A1};
 int StreetLampsNumber = 8;
 ChainableLED StreetLamps(4,5, StreetLampsNumber);
 
-const int RUNTIME_INTERVAL = 4000;   //! time in ms between runs
+const int RUNTIME_INTERVAL = 1000;   //! time in ms between runs
 
 bool StreetLampStatus = false;       //! Status of the streetlamps
 int UltraSonicSensorsLen;            //! Number of sensors in the array. Defined at runtime

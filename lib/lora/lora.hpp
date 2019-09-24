@@ -25,8 +25,8 @@ static uint8_t error;
 // Lights & metrics is 14
 
 
-static char DEVICE_EUI[] = "0102030405060714";  // DEV_EUI for indentification
-static char DEVICE_ADDR[] = "06060714"; 
+static char DEVICE_EUI[] = "0102030405060715";  // DEV_EUI for indentification
+static char DEVICE_ADDR[] = "06060715"; 
 static char NWK_SESSION_KEY[] = "01020304050607080910111213141516"; // Creds
 static char APP_SESSION_KEY[] = "000102030405060708090A0B0C0D0E0F"; // Creds
 

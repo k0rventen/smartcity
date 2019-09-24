@@ -1,7 +1,7 @@
 image: debian:stretch
 build:
   tags:
-    - "docker azure"
+    - "docker"
   script:
     - apt update && apt install python3-pip -y
     - pip3 install platformio
@@ -11,10 +11,8 @@ build:
     - platformio run
 
 pages:
-  variables:
-    CI_DEBUG_TRACE: "true"
   tags:
-    - "docker azure"
+    - "docker"
   script:
     - apt update && apt install doxygen -y
     - doxygen

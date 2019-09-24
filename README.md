@@ -159,8 +159,8 @@ Explanations :
 **Street lamps & metrics scenario**
 
 | Byte number | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 |
-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
-| Desc | Lights status | Null | Null | Flood status | Null | Null | Null | Null | Null |  Null | Light level| Light level | Noise | Noise | Temp | Temp| 
+|-------------|-------|---------|--------------|---------|---------|---------|---------|-----------|-----------|--|--|--|---|---|---|---|
+| Desc | Lights status | Null | Null | Flood status | Null | Null | Null | Null | Null |  Null | Light level | Light level | Noise | Noise | Temp | Temp | 
 | Value | 1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 8 | 9 | 4 | 8 | 2 | 5 | 
 
 Explanations : 

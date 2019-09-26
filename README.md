@@ -10,7 +10,7 @@ CI : ![status](https://code.axians.com/corentin.farque/smartcity/badges/master/p
   - [Introduction](#introduction)
   - [Smart scenarios](#smart-scenarios)
   - [Components overview](#components-overview)
-  - [Smart city](#smart-city-1)
+  - [Physical scale model](#physical-scale-model)
     - [Hardware listing](#hardware-listing)
     - [Installation of the code environnement](#installation-of-the-code-environnement)
     - [Configuration adjustements](#configuration-adjustements)
@@ -23,6 +23,7 @@ CI : ![status](https://code.axians.com/corentin.farque/smartcity/badges/master/p
   - [M2M Interface](#m2m-interface)
     - [Categories](#categories)
     - [Frame decoding](#frame-decoding)
+    - [Interface logic](#interface-logic)
   - [License](#license)
 
 
@@ -62,7 +63,7 @@ Here is a quick diagramm showing every major component of the model :
 
 Each section below is describing one of those components.
 
-## Smart city
+## Physical scale model
 
 ### Hardware listing
 
@@ -110,8 +111,9 @@ You will then have an `doc/` folder. Open the `ìndex.html` file with your brows
 
 ### Configuration adjustements
 
-The same boilerplate file is deployed to every arduino. The logic is the same everywhere, the arduino fetches the sensors and uploads their data to the cloud through an LoRa gateway. The only difference between each Arduino is which sensors are connected and on which pin.  This is the configuration currently is use in the model : 
+The same boilerplate file is deployed to every arduino. The logic is the same everywhere, the arduino fetches the sensors and uploads their data to the cloud through an LoRa gateway. The only difference between each Arduino is which sensors are connected and on which pin.  
 
+This is the configuration currently is use in the model in `header.hpp`.
 ```c
 int UltrasonicSensors[] = {2,3,4};
 int HallSensors[] = {6,7,8,2,3,5};
@@ -126,6 +128,14 @@ int StreetLampsNumber = 8;
 ChainableLED StreetLamps(4,5, StreetLampsNumber);
 
 const int RUNTIME_INTERVAL = 1000;   //! time in ms between runs
+```
+
+The LoRa configuration is in `lora.hpp` :
+```c
+static char DEVICE_EUI[] = "0102030405060715";
+static char DEVICE_ADDR[] = "06060715"; 
+static char NWK_SESSION_KEY[] = "01020304050607080910111213141516"; 
+static char APP_SESSION_KEY[] = "000102030405060708090A0B0C0D0E0F"; 
 ```
 
 Therefore, you must adapt the `header.hpp` , in order to reflects:
@@ -175,10 +185,11 @@ Explanations :
 
 To manage our devices (gateway, sensors..) and enable 3rd party apps to access our data, we are using Acklio's cloud. 
 
+![](ressources/acklio.png)
+
 ### Gateway
 
-Once the Acklio package has been deployed on the **gateway**, it will automatically appear on the dashboard. 
-
+Once the Acklio package has been deployed on the **gateway**, it will automatically appear on the `discovered` dashboard. 
 
 ### Devices
 
@@ -195,6 +206,8 @@ Then, **device profiles** will link the devices to the connectors.
 
 ## M2M Interface
 
+![](ressources/vm2m.png)
+
 ### Categories
 
 To display in a fancier manner our data, we are using Vertical M2M. From our M2M instance, we'll connect to the Acklio cloud using a **HTTP callback connector** from Acklio : 
@@ -203,22 +216,93 @@ Each Arduino get its own **category**, in which we define the kind of device, th
 
 ### Frame decoding
 
-The following boilerplate code is used to decode the payload and retrieve the data from it (yes it's Lua, yes they are using lua in 2019, whatev) :
+The following  code is used to decode the payload and retrieve the data from it (yes it's Lua, yes they we are in 2019, whatev) :
 
+**This is for the Street lamps and metrics arduino :**
 ```lua
--- decode the payload
 local payload = bin2hex(getInputPayload())
 
--- get the first value at pos 1,
--- and convert it to a number from base 10
+local flood_status = tonumber(string.sub(payload,4,4),10)
+if flood_status == 1 then
+	flood_status = 0
+elseif flood_status == 0 then
+	flood_status = 1
+end
+	setOutputRecordData(90,flood_status)
+
+local light_status = tonumber(string.sub(payload,1,1),10)
+setOutputRecordData(91,flood_status)
+
+local light_level = tonumber(string.sub(payload,11,12),10)
+setOutputRecordData(92,light_level)
+	
+local temp = tonumber(string.sub(payload,15,16),10)
+setOutputRecordData(5,temp)
+
+
+local son = tonumber(string.sub(payload,13,14),10)
+setOutputRecordData(93,son)
+```
+
+**This is for the Garbage monitoring**
+```lua
+local payload = bin2hex(getInputPayload())
+
+
 local trash1 = tonumber(string.sub(payload,1,1),10)
 if trash1 > 0 then
 	trash1 = 100
 end
 
--- set the record Number 90 to the value we just decoded
 setOutputRecordData(90,trash1)
+
+local trash2 = tonumber(string.sub(payload,3,3),10)
+if trash2 > 0 then
+	trash2 = 100
+end
+setOutputRecordData(91,trash2)
+
+local trash3 = tonumber(string.sub(payload,5,5),10)
+if trash3 > 0 then
+	trash3 = 100
+end
+setOutputRecordData(92,trash3)
 ```
+
+
+**This is for the parking spot management:**
+```lua
+local payload = bin2hex(getInputPayload())
+
+
+local parking_spot1 = tonumber(string.sub(payload,1,1),10)
+setOutputRecordData(90,parking_spot1)
+
+
+local parking_spot2 = tonumber(string.sub(payload,3,3),10)
+setOutputRecordData(91,parking_spot2)
+
+
+local parking_spot3 = tonumber(string.sub(payload,5,5),10)
+setOutputRecordData(92,parking_spot3)
+
+
+local parking_spot4 = tonumber(string.sub(payload,7,7),10)
+setOutputRecordData(93,parking_spot4)
+
+
+local parking_spot5 = tonumber(string.sub(payload,9,9),10)
+setOutputRecordData(94,parking_spot5)
+
+
+local parking_spot6 = tonumber(string.sub(payload,11,11),10)
+setOutputRecordData(95,parking_spot6)
+```
+
+
+### Interface logic
+
+This is just a drag n drop system, where you place widgets on the dashboard, and connect the rights data sources to it.
 
 ## License
 

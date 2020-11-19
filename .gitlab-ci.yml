@@ -1,5 +1,5 @@
 image: debian:stretch
-build:
+embedded:
   tags:
     - "docker" 
   script:
@@ -9,6 +9,16 @@ build:
     - export LC_ALL=C.UTF-8
     - export LANG=C.UTF-8
     - platformio run
+
+cloud:
+  tags:
+    - "docker" 
+  script:
+    - docker ps || echo "no"
+    - pwd || echo "no"
+    - uname -a || echo "no"
+    - ls || echo "no"
+    
 
 pages:
   tags:

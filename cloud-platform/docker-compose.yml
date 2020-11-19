@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  # TSDB
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_DB=smartcity
+      - INFLUXDB_HTTP_HTTPS_ENABLED=false
+    volumes:
+      - ./influx:/var/lib/influxdb
+    restart: always
+
+  # Vis
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ${PWD}/grafana.ini:/etc/grafana/grafana.ini
+      - ${PWD}/tls.key:/etc/grafana/tls.key
+      - ${PWD}/tls.crt:/etc/grafana/tls.crt
+      - ./grafana:/var/lib/grafana
+    restart: always
+
+  # Worker
+  worker:
+    build: ./worker
+    restart: always
+    environment:
+      - INFLUX_DB=smartcity
+      - MQTT_ENDPOINT=
+      - MQTT_PORT=
+      - MQTT_USER=
+      - MQTT_PASS=
+      - MQTT_TOPIC=

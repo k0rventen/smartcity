@@ -2,6 +2,8 @@
 
 What a smart city could be like, integrating IoT sensors and scenarios to further enhance the convenience of the city's services for the inhabitants, while improving its energetic efficiency. 
 
+[Chek out the demo](https://ec2.k0rventen.xyz:30300/)
+
 CI : ![status](https://code.axians.com/corentin.farque/smartcity/badges/master/pipeline.svg)
 
 ![header](ressources/smartcity.jpg)
@@ -20,12 +22,12 @@ CI : ![status](https://code.axians.com/corentin.farque/smartcity/badges/master/p
     - [Devices](#devices)
     - [Connectors](#connectors)
     - [Device profiles](#device-profiles)
-  - [M2M Interface](#m2m-interface)
+  - [AWS Cloud platform](#aws-cloud-platform)
+  - [(Deprecated) M2M Interface](#deprecated-m2m-interface)
     - [Categories](#categories)
     - [Frame decoding](#frame-decoding)
     - [Interface logic](#interface-logic)
   - [License](#license)
-
 
 ## Introduction
 
@@ -56,10 +58,13 @@ A flood detection system is also present, which can alert the surrounding popula
 
 ## Components overview 
 
-Here is a quick diagramm showing every major component of the model : 
+Here is a quick diagram showing every major component of the model : 
 
 ![diagram](ressources/diagram.jpg)
 
+- Various sensors (temperature, humidity, noise, parking spots..) are connected to Arduinos equipped with LoRa antennas, that transmits to a nearby 4G LoRa gateway.
+- Data & management informations are uploaded to our Acklio server.
+- Actual sensor data is retrieved by an AWS instance for decoding/storage/visualisation.
 
 Each section below is describing one of those components.
 
@@ -82,7 +87,7 @@ Here is a list of the hardware components used in the smart city model :
 
 
 Each arduino is responsible for a specific task : 
-* Arduino 1 is managing the street lamps and monitoring the temperature and noise level of the city,
+* Arduino 1 is managing the street lamps and monitoring the temperature / noise level of the city,
 * Arduino 2 is managing the city's trash cans
 * Arduino 3 is managing the parking spots
 
@@ -197,14 +202,29 @@ From there, **devices** with the same settings as the real arduinos (dev_eui, de
 
 ### Connectors
 
-**Connectors** will allow external services to access the smart city model through various protocols (MQTT, HTTP..)
+**Connectors** will allow external services to access the smart city model through various protocols (MQTT(s), HTTP(s)..)
 
 ### Device profiles
 
 Then, **device profiles** will link the devices to the connectors.
 
 
-## M2M Interface
+## AWS Cloud platform
+
+A novel visualisation platform is being used. Running on en ec2 instance is a influxDB + Grafana combo for long-term storage & visualisation. 
+
+![](ressources/grafana.png)
+
+it is composed of :
+- a python worker that connects to Acklio, decode the payload and stores it into influxDB
+- influxDB, a timeseries database for storing the data uploaded by the smart city
+- grafana, to visualize the data either in "real" time, or historically. 
+
+To deploy, you can look up the `docker-compose.yml` file in the _cloud-platform/_ folder.
+
+## (Deprecated) M2M Interface
+
+__/!\ THIS SECTION IS NO LONGER RELEVANT AS WE MOVED TO GRAFANA__
 
 ![](ressources/vm2m.png)
 
@@ -306,10 +326,10 @@ This is just a drag n drop system, where you place widgets on the dashboard, and
 
 ## License
 
-2019, k0rventen
+2020, k0rventen
 
 The LoRa library is GPL, therefore is whatever code calling it, including the `/src` dir.
 But my lib for the sensors in `/lib/sensors` is under MIT.
-
+Same goes for the code of the python worker, all MIT.
 It's open source.
 Use it. Tweak it. Improve on it. Share it.

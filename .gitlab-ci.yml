@@ -1,26 +1,16 @@
-image: debian:stretch
 embedded:
+  image: python:3-slim
   tags:
     - "docker" 
   script:
-    - apt update && apt install python3-pip -y
     - pip3 install platformio
     - sed -i 's/\/\/#define/#define/g' include/header.hpp
     - export LC_ALL=C.UTF-8
     - export LANG=C.UTF-8
     - platformio run
 
-cloud:
-  tags:
-    - "docker" 
-  script:
-    - docker ps || echo "no"
-    - pwd || echo "no"
-    - uname -a || echo "no"
-    - ls || echo "no"
-    
-
 pages:
+  image: debian:stretch
   tags:
     - "docker"
   script:

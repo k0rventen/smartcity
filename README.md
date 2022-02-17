@@ -2,11 +2,10 @@
 
 What a smart city could be like, integrating IoT sensors and scenarios to further enhance the convenience of the city's services for the inhabitants, while improving its energetic efficiency. 
 
-[Chek out the demo](https://ec2.k0rventen.xyz:30300/)
 
 CI : ![status](https://code.axians.com/corentin.farque/smartcity/badges/master/pipeline.svg)
 
-![header](ressources/smartcity.jpg)
+![header](ressources/booth.jpg)
 
 - [Smart city](#smart-city)
   - [Introduction](#introduction)
@@ -222,114 +221,10 @@ it is composed of :
 
 To deploy, you can look up the `docker-compose.yml` file in the _cloud-platform/_ folder.
 
-## (Deprecated) M2M Interface
-
-__/!\ THIS SECTION IS NO LONGER RELEVANT AS WE MOVED TO GRAFANA__
-
-![](ressources/vm2m.png)
-
-### Categories
-
-To display in a fancier manner our data, we are using Vertical M2M. From our M2M instance, we'll connect to the Acklio cloud using a **HTTP callback connector** from Acklio : 
-
-Each Arduino get its own **category**, in which we define the kind of device, the transmission type, and the code needed to decode the payloads. 
-
-### Frame decoding
-
-The following  code is used to decode the payload and retrieve the data from it (yes it's Lua, yes they we are in 2019, whatev) :
-
-**This is for the Street lamps and metrics arduino :**
-```lua
-local payload = bin2hex(getInputPayload())
-
-local flood_status = tonumber(string.sub(payload,4,4),10)
-if flood_status == 1 then
-	flood_status = 0
-elseif flood_status == 0 then
-	flood_status = 1
-end
-	setOutputRecordData(90,flood_status)
-
-local light_status = tonumber(string.sub(payload,1,1),10)
-setOutputRecordData(91,flood_status)
-
-local light_level = tonumber(string.sub(payload,11,12),10)
-setOutputRecordData(92,light_level)
-	
-local temp = tonumber(string.sub(payload,15,16),10)
-setOutputRecordData(5,temp)
-
-
-local son = tonumber(string.sub(payload,13,14),10)
-setOutputRecordData(93,son)
-```
-
-**This is for the Garbage monitoring**
-```lua
-local payload = bin2hex(getInputPayload())
-
-
-local trash1 = tonumber(string.sub(payload,1,1),10)
-if trash1 > 0 then
-	trash1 = 100
-end
-
-setOutputRecordData(90,trash1)
-
-local trash2 = tonumber(string.sub(payload,3,3),10)
-if trash2 > 0 then
-	trash2 = 100
-end
-setOutputRecordData(91,trash2)
-
-local trash3 = tonumber(string.sub(payload,5,5),10)
-if trash3 > 0 then
-	trash3 = 100
-end
-setOutputRecordData(92,trash3)
-```
-
-
-**This is for the parking spot management:**
-```lua
-local payload = bin2hex(getInputPayload())
-
-
-local parking_spot1 = tonumber(string.sub(payload,1,1),10)
-setOutputRecordData(90,parking_spot1)
-
-
-local parking_spot2 = tonumber(string.sub(payload,3,3),10)
-setOutputRecordData(91,parking_spot2)
-
-
-local parking_spot3 = tonumber(string.sub(payload,5,5),10)
-setOutputRecordData(92,parking_spot3)
-
-
-local parking_spot4 = tonumber(string.sub(payload,7,7),10)
-setOutputRecordData(93,parking_spot4)
-
-
-local parking_spot5 = tonumber(string.sub(payload,9,9),10)
-setOutputRecordData(94,parking_spot5)
-
-
-local parking_spot6 = tonumber(string.sub(payload,11,11),10)
-setOutputRecordData(95,parking_spot6)
-```
-
-
-### Interface logic
-
-This is just a drag n drop system, where you place widgets on the dashboard, and connect the rights data sources to it.
-
 ## License
 
-2020, k0rventen
+2022, k0rventen
 
-The LoRa library is GPL, therefore is whatever code calling it, including the `/src` dir.
+The LoRa library is GPL, as is whatever code calling it, including the `/src` dir.
 But my lib for the sensors in `/lib/sensors` is under MIT.
 Same goes for the code of the python worker, all MIT.
-It's open source.
-Use it. Tweak it. Improve on it. Share it.

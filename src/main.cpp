@@ -2,34 +2,32 @@
  * @file main.cpp
  *
  * @page "Main logic"
- * 
- * @section lol Technical overview
- * 
+ *
+ * @section Technical overview
+ *
  * This is the main script, from which every lib is called.
- * 
+ *
  * The logic is very simple, depending on which compiler flags are enabled (from the header.hpp),
  * the setup function will initialize the corresponding sensors, and the main runtime loop will call
  * each enabled scenarios in a programmatic fashion.
- * 
- * I.E. if this is present in the header : 
- * 
+ *
+ * I.E. if this is present in the header :
+ *
  * @code
  * # define STREETLAMPSCENARIO
  * @endcode
- * 
- * then the main logic will activate the Street Lamp management scenario. 
- * 
+ *
+ * then the main logic will activate the Street Lamp management scenario.
+ *
  * Because we are doing this in an infinite loop, each run is seperated by a delay, specified in the header by RUNTIME_DELAY.
- * 
+ *
  * @section LoRa
- * 
- * Furthermore, because each arduinos is uploading its gathered data, we configure the LoRa stach during setup(), 
+ *
+ * Furthermore, because each arduinos is uploading its gathered data, we configure the LoRa stach during setup(),
  * then once every 10 loop, we send a payload.
- * 
+ *
  * This is not the most "efficient" way to do so, because we may miss some informations along the way (some information may get changed from one run to another),
  * but because we are using LoRa, we have to keep in mind the Duty cycle and faire use of the bandwith.
- * 
- * 
  */
 
 #include "header.hpp"
@@ -43,7 +41,7 @@ char LoRaPayload[31] = "000000000000000000000000000000"; //! payload to be trans
 /**
  * @brief Scenario that retrieves some data about the city
  * such as noise pollution, temperature and a flood indicator.
- * 
+ *
  */
 void CityMetricsScenario()
 {
@@ -69,10 +67,10 @@ void CityMetricsScenario()
     {
         celsius = 99;
     }
-     tens = celsius / 10;
-     nums = celsius % 10;
-     c_tens = tens + '0';
-     c_nums = nums + '0';
+    tens = celsius / 10;
+    nums = celsius % 10;
+    c_tens = tens + '0';
+    c_nums = nums + '0';
     // Add to the payload
     LoRaPayload[14] = c_tens;
     LoRaPayload[15] = c_nums;
@@ -101,7 +99,7 @@ void CityMetricsScenario()
  * For now it uses a threshold to control whether the lamps are on or off, but it could be more granular in the future,
  * by adjusting slighty the level of the street lamps based on a range instead. It would a smooth, slow fading effect.
  * It must be noted however that the toggling of the lamps is not a simple on/off, but a smooth fade up / down.
- * 
+ *
  */
 void StreetLampsScenario()
 {
@@ -144,10 +142,10 @@ void StreetLampsScenario()
 #ifdef PARKINGSCENARIO
 /**
  * @brief Scenario that controls the parking spots of the city.
- * 
+ *
  * Each parking spot is monitored and connected to a LED.
  * If the parking sport is taken, the LED is up.
- * 
+ *
  */
 void ParkingScenario()
 {
@@ -178,10 +176,10 @@ void ParkingScenario()
 #ifdef WASTESCENARIO
 /**
  * @brief Scenario which controls and monitor the city trash cans.
- * 
+ *
  * The trashes fullness level is measured through an ultrasonic sensor.
  * If the trash is "filled up", a LED lights up.
- * 
+ *
  */
 void WasteScenario()
 {
@@ -210,7 +208,7 @@ void WasteScenario()
 
 /**
  * @brief Configuration code, before entering loopy runtime code.
- * 
+ *
  * Everything is configured using the \#include statements defined in the header.hpp
  */
 void setup()
@@ -243,12 +241,12 @@ void setup()
 }
 
 /**
-  * @brief  Loopy code for runtime.
-  * It just launches the scenarios programmaticaly based on which scenarios are enabled.
-  * 
-  * Maybe in a future version, we'll move to freeRTOS, as an overkill maneuver.
-  * 
-  */
+ * @brief  Loopy code for runtime.
+ * It just launches the scenarios programmaticaly based on which scenarios are enabled.
+ *
+ * Maybe in a future version, we'll move to freeRTOS, as an overkill maneuver.
+ *
+ */
 void loop()
 {
 
@@ -276,7 +274,7 @@ void loop()
     if (counter == 60)
     {
         counter = 0;
-        
+
 #ifdef LORA
         sendLoRaMessage(LoRaPayload);
 #endif

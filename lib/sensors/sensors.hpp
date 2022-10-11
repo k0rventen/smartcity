@@ -1,20 +1,20 @@
 /**
  * @file sensors.hpp
- * 
- * This defines some variables for the sensors, 
+ *
+ * This defines some variables for the sensors,
  * such as thresholds for the brightness and ultrasonic sensors.
- * 
- * 
+ *
+ *
  */
 #include <Arduino.h>      // base framework
 #include <Ultrasonic.h>   // For the ultrasonic sensors
 #include <math.h>         // To do some maths
 #include <ChainableLED.h> // Control the Leds for the street lamps
 
-const int B = 4275;                  //! value of the thermistor
-const long R0 = 100000;              //! R0 = 100k
+const int B = 4275;     //! value of the thermistor
+const long R0 = 100000; //! R0 = 100k
 
-const long ULTRASONICTHRESHOLD = 5;  //! Distance in centimeters that differentiates a full trash can from an empty one
+const long ULTRASONICTHRESHOLD = 5; //! Distance in centimeters that differentiates a full trash can from an empty one
 const int BRIGHTNESSTHRESHOLD = 20; // Arbitrary brightness threshold for day/night detection
 
 long get_distance_from_ultrasonic_pin(int pin);

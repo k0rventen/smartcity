@@ -10,10 +10,11 @@ This page is the complete doc for the code, infrastructure and all the component
 - [Develop](#develop)
 - [Infrastructure overview](#infrastructure-overview)
 - [Bill Of Materials](#bill-of-materials)
-- [Multitech gateway & Acklio setup](#multitech-gateway--acklio-setup)
+- [Multitech gateway & LNS setup](#multitech-gateway--lns-setup)
+  - [Installing the LorIOT daemon](#installing-the-loriot-daemon)
   - [Installing the Acklio daemon](#installing-the-acklio-daemon)
-  - [Various things that could go wrong](#various-things-that-could-go-wrong)
-  - [Acklio](#acklio)
+    - [Various things that could go wrong](#various-things-that-could-go-wrong)
+  - [Acklio setup](#acklio-setup)
 - [Arduinos](#arduinos)
   - [Installation of the code environnement](#installation-of-the-code-environnement)
   - [Configuration adjustements](#configuration-adjustements)
@@ -44,12 +45,23 @@ Here is a list of the hardware components used in the smart city model :
   - A [LoRaWAN antenna](https://www.cooking-hacks.com/lorawan-radio-shield-for-arduino-868-mhz), to upload the gathered data to a nearby gateway,
 - A [Multitech LoRa gateaway](https://www.multitech.com/brands/multiconnect-conduit-ap), to receive the payloads from the antenna
 
-# Multitech gateway & Acklio setup
+# Multitech gateway & LNS setup
 
 
 The gateway need to be configured beforehand, with a working SIM card (for WAN connectivity), and a SSH access.
 
 The documentation for the gateway can be found here: https://www.multitech.net/developer/software/mlinux/getting-started-with-conduit-mlinux/
+
+
+The LNS used previously was Acklio. Switched to LorIOT for now.
+
+## Installing the LorIOT daemon
+
+```
+wget https://eu5pro.loriot.io/home/gwsw/loriot-multitech-conduit-ap-mcard-SPI-0-latest.sh -O loriot-install.sh
+chmod +x loriot-install.sh
+./loriot-install.sh -f -s eu5pro.loriot.io
+```
 
 ## Installing the Acklio daemon
 To connect the gateway to the Acklio cloud, we need a special daemon that will forward loRa packets to the Acklio MQTT broker.
@@ -65,7 +77,7 @@ opkg install --force-reinstall acklio-semtech-bridge-multitech.ipk
 ```
 
 
-## Various things that could go wrong
+### Various things that could go wrong
 
 The daemon will start automatically when the gateway boots. If you want to check the logs, you can `/etc/init.d/lora-semtech-bridge stop;/etc/init.d/lora-semtech-bridge start-foreground`. This can be useful when the gateway appears as disconnected from Acklio's side. 
 
@@ -78,7 +90,7 @@ date "2022-10-10 10:10:10"
 hwclock -u -w
 ```
 
-## Acklio
+## Acklio setup
 
 On Acklio, the following assets are used:
 - once the Acklio package has been deployed on the **gateway**, the latter will automatically appear on the `discovered` dashboard. 
@@ -210,11 +222,11 @@ Explanations :
 
 A preconfigured environment for visualizing & storing the data is available in the `cloud-platform` folder.
 
-It contains a docker-compose based stack that uses InfluxDB (for storing data), Grafana (for visualizing) and a python connector for retrieving the data from Acklio.
+It contains a docker-compose based stack that uses InfluxDB (for storing data), Grafana (for visualizing) and a python connector for retrieving the data from a MQTT broker.
 
 ## Deploy using docker-compose
 
-Set up the docker-compose file with the required variables. They should be configured according to the mqtts connector from acklio:
+Set up the docker-compose file with the required variables. They should be configured according to the mqtts connector from the LNS server:
 ```
   worker:
   ...

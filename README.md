@@ -63,7 +63,12 @@ To manage our devices (gateway, sensors..) and enable 3rd party apps to access o
 
 A cloud-based visualisation platform is being used. Running anywhere is a influxDB + Grafana combo for long-term storage & visualisation. 
 
+Example of dashboards
+
 ![](ressources/grafana.png)
+
+
+![](ressources/grafana2.png)
 
 it is composed of :
 - a python worker that connects to Acklio, decode the payload and stores it into influxDB
@@ -77,7 +82,7 @@ The code, infrastructure & other components docs are documented in `DEVELOP.md`.
 
 ## License
 
-2029-2022, k0rventen
+2019-2022, k0rventen
 
 The LoRa library is GPL, as is whatever code calling it, including the `/src` dir.
 But my lib for the sensors in `/lib/sensors` is under MIT.

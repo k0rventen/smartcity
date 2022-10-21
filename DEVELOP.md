@@ -14,13 +14,17 @@ This page is the complete doc for the code, infrastructure and all the component
   - [Installing the LorIOT daemon](#installing-the-loriot-daemon)
   - [Installing the Acklio daemon](#installing-the-acklio-daemon)
     - [Various things that could go wrong](#various-things-that-could-go-wrong)
+      - [Acklio](#acklio)
+      - [Mismatched date](#mismatched-date)
   - [Acklio setup](#acklio-setup)
 - [Arduinos](#arduinos)
   - [Installation of the code environnement](#installation-of-the-code-environnement)
   - [Configuration adjustements](#configuration-adjustements)
   - [Payload structure of the LoRa frame](#payload-structure-of-the-lora-frame)
+  - [Current settings on the demonstrator](#current-settings-on-the-demonstrator)
 - [Cloud env](#cloud-env)
   - [Deploy using docker-compose](#deploy-using-docker-compose)
+  - [License](#license)
 
 
 # Infrastructure overview
@@ -53,9 +57,11 @@ The gateway need to be configured beforehand, with a working SIM card (for WAN c
 The documentation for the gateway can be found here: https://www.multitech.net/developer/software/mlinux/getting-started-with-conduit-mlinux/
 
 
-The LNS used previously was Acklio. Switched to LorIOT for now.
+The LNS used previously was Acklio. We switched to LorIOT for now.
 
 ## Installing the LorIOT daemon
+
+Connect on the gateway through SSH, reset the LoRaWAN settings, then execute the following:
 
 ```
 wget https://eu5pro.loriot.io/home/gwsw/loriot-multitech-conduit-ap-mcard-SPI-0-latest.sh -O loriot-install.sh
@@ -64,6 +70,7 @@ chmod +x loriot-install.sh
 ```
 
 ## Installing the Acklio daemon
+
 To connect the gateway to the Acklio cloud, we need a special daemon that will forward loRa packets to the Acklio MQTT broker.
 
 First, copy the local `ressources/acklio-semtech-bridge-multitech.ipk` to the gateway using scp.
@@ -79,10 +86,15 @@ opkg install --force-reinstall acklio-semtech-bridge-multitech.ipk
 
 ### Various things that could go wrong
 
-The daemon will start automatically when the gateway boots. If you want to check the logs, you can `/etc/init.d/lora-semtech-bridge stop;/etc/init.d/lora-semtech-bridge start-foreground`. This can be useful when the gateway appears as disconnected from Acklio's side. 
+The daemon responsible for forwarding the packets to the LNS should start automatically when the gateway boots. 
 
+#### Acklio
+
+if you want to check the logs, you can `/etc/init.d/lora-semtech-bridge stop;/etc/init.d/lora-semtech-bridge start-foreground`. This can be useful when the gateway appears as disconnected from Acklio's side. 
 The config is in `/var/config/lora-semtech-bridge/lora-semtech-bridge`, if lines containing mentions of certificates, remove them. The included certificates are out of date.
 
+
+#### Mismatched date
 If you have the following error `Network Error : x509: certificate has expired or is not yet valid` and `date` reports a time that's not correct, it means the gateway's RTC might be off, and NTP might not synchronise to the proper time, you can set the time and save it to the RTC using 
 
 ```
@@ -216,7 +228,28 @@ Explanations :
 - Noise : Bytes 12 and 13 are the current noise level reading in decibels. Here is 48 dB.
 - Temp : Bytes 14 and 15, the current temperature reading in Celsius, here 25°C.
 
+## Current settings on the demonstrator
 
+parking:
+- deveui 0102030405060721
+- parking hall sensors on PINs {6, 7, 8, 2, 3, 5}
+- parking leds on PINs {A2, A3, 9, 4, A0, A1}
+
+
+trash cans
+- deveui 0102030405060723
+- ultrasonic sensors on PINs {2, 3, 4}
+- LEDs on pins  {6, 7, 8}
+
+
+
+temp/sound
+- deveui 0102030405060720
+- Temperature sensor on pin A2
+- Sound sensor on pin A3
+- Brightness sensor on pin A1
+- Flood sensor on pin 2
+- Flood LED on pin 3
 
 # Cloud env
 
@@ -243,3 +276,12 @@ openssl req -x509 -nodes -newkey rsa:2048 -keyout tls.key -out tls.crt -days 365
 ```
 
 Then, just `docker-compose up -d`. Grafana will be available at __https://host:3000__.
+
+
+## License
+
+2019-2022, k0rventen
+
+The LoRa library is GPL, as is whatever code calling it, including the `/src` dir.
+But my lib for the sensors in `/lib/sensors` is under MIT.
+Same goes for the code of the python worker, all MIT.
